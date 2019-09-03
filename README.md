@@ -1,2 +1,2 @@
 # workshop-repository-e
-hait-lab Git ワークショップレポジトリ
+和田で〜すよろしくお願いします！
