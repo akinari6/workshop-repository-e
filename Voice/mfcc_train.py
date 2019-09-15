@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[8]:
 
 
 import librosa
 #librosaライブラリのインポート（初めての人はインストール必要かもです）
 
 
-# In[2]:
+# In[9]:
 
 
 import numpy as np 
@@ -18,13 +18,13 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 from sklearn.svm import SVC
 
 
-# In[3]:
+# In[10]:
 
 
-svc=SVC(kernel='linear')#モデル作成（本当はこっからkernel.gamma,cの調整が必要）
+svc=SVC(kernel='rbf', gamma=0.1, C=10)#モデル作成（本当はこっからkernel.gamma,cの調整が必要）
 
 
-# In[4]:
+# In[11]:
 
 
 row_data_kimura=np.empty((0, 22050), float)
@@ -33,13 +33,13 @@ row_data_tsujita=np.empty((0, 22050), float)
 print(type(row_data_kimura))
 
 
-# In[8]:
+# In[30]:
 
 
 for i in range(8):
     k_data, f=librosa.load("data\kimura_out_a00{}.wav".format(i+2))
+    t_data, f=librosa.load("data\tsujita_out_a00{}.wav".format(i+2))
     row_data_kimura = np.append(row_data_kimura, np.array([k_data]), axis = 0)
-    
     #2-9番目の音声データ読み込み
 # print(row_data[1])
 # print(row_data[1].shape)
@@ -56,7 +56,7 @@ row_data_kimura
 
 
 
-# In[ ]:
+# In[13]:
 
 
 #実行は1回だけ！
@@ -69,7 +69,7 @@ print(row_data_kimura.shape)
 print(f)
 
 
-# In[ ]:
+# In[14]:
 
 
 mfccs_k_2=librosa.feature.mfcc(row_data_kimura[0])
@@ -87,7 +87,7 @@ mfccs_k
 
 
 
-# In[ ]:
+# In[15]:
 
 
 for i in range(23):
@@ -97,32 +97,32 @@ for i in range(23):
     mfccs_k = np.concatenate([mfccs_k, k_mfcc], axis=0)
     print(mfccs_k.shape)
     
-# #24個のmfccを入れる。
+# #23個のmfccを入れる。
 # mfcc = librosa.feature.mfcc(data[0])
 # print(type(mfcc))
 # mfcc.shape
 
 
-# In[ ]:
+# In[16]:
 
 
+y = np.ones(23)
 
 
-
-# In[ ]:
-
+# In[17]:
 
 
+y
 
 
-# In[ ]:
+# In[18]:
 
 
 data1=[None]*30
 f1=[None]*30
 
 
-# In[ ]:
+# In[19]:
 
 
 for i in range(8):
@@ -149,7 +149,7 @@ for i in range(30):
     print(i,type(data1[i]))
 
 
-# In[ ]:
+# In[20]:
 
 
 for i in range(20):
@@ -180,10 +180,47 @@ mfcc[0]
 # In[ ]:
 
 
-mfcc2[0]
-#確認したけどやっぱり違う
+mfcc2[0]#確認したけどやっぱり違う
 #その後、辻田さんの指摘で修正されました
 #ここから先の見通しは、二つのmfcc群を20個ずつxにいれ、それに対応する正解ｙ（木村さん：０、辻田さん：１）みたいな感じで作ってSVCで学習する感じだと思います
+
+
+# In[16]:
+
+
+svc.fit(mfccs_k, y)
+
+
+# In[21]:
+
+
+import tensorflow as tf
+import keras
+from keras.models import Sequential
+
+from keras.layers import Dense, Activation, Flatten
+
+from keras.optimizers import SGD
+
+from keras.utils import np_utils
+
+
+# In[22]:
+
+
+Y_train = np_utils.to_categorical(y, num_classes=2).astype('i')
+
+
+# In[23]:
+
+
+batch_size=100
+
+
+# In[24]:
+
+
+n_epoch=20
 
 
 # In[ ]:
