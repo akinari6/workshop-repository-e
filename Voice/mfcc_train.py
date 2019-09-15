@@ -27,60 +27,77 @@ svc=SVC(kernel='linear')#モデル作成（本当はこっからkernel.gamma,c�
 # In[4]:
 
 
-row_data=np.empty((0, 22050), float)
-f=np.zeros(30)
+row_data_kimura=np.empty((0, 22050), float)
+row_data_tsujita=np.empty((0, 22050), float)
 #空のarrayを作成
-print(type(row_data))
+print(type(row_data_kimura))
 
 
-# In[5]:
+# In[8]:
 
 
 for i in range(8):
-    my_data, my_f=librosa.load("data\kimura_out_a00{}.wav".format(i+2))
-    row_data = np.append(row_data, np.array([my_data]), axis = 0)
-    #まず木村さんの2-9番目の音声データ読み込み
+    k_data, f=librosa.load("data\kimura_out_a00{}.wav".format(i+2))
+    row_data_kimura = np.append(row_data_kimura, np.array([k_data]), axis = 0)
+    
+    #2-9番目の音声データ読み込み
 # print(row_data[1])
 # print(row_data[1].shape)
-print(type(row_data))
-print(row_data.shape)
-row_data
+print(type(row_data_kimura))
+print(row_data_kimura.shape)
+row_data_kimura
 # print(row_data)
 #np.array(row_data)
 
 
-# In[6]:
+# In[ ]:
+
+
+
+
+
+# In[ ]:
 
 
 #実行は1回だけ！
 for i in range(8,24):
-    my_data,my_f=librosa.load("data\kimura_out_a0{}.wav".format(i+2))
-    row_data = np.append(row_data, np.array([my_data]), axis = 0)
+    k_data,f=librosa.load("data\kimura_out_a0{}.wav".format(i+2))
+    row_data_kimura = np.append(row_data_kimura, np.array([k_data]), axis = 0)
     #10-25番目の音声データ読み込み
 print(type(f))
-f
-print(row_data.shape)
+print(row_data_kimura.shape)
+print(f)
 
 
-# In[11]:
+# In[ ]:
 
 
-mfccs=np.empty((20, 44, 24), float)
-#mfccを入れるための空のarrayを作成
-print(type(mfccs))
-print(mfccs.shape)
-mfccs
+mfccs_k_2=librosa.feature.mfcc(row_data_kimura[0])
+print(mfccs_k_2.shape)
+mfccs_k = mfccs_k_2[None,:,:]
+#mfccを入れるための空のarrayを作成(3次元に変換)
+print(type(mfccs_k))
+print(mfccs_k.shape)
+mfccs_k
 
 
-# In[12]:
+# In[ ]:
 
 
-for i in range(24):
-    my_mfcc=librosa.feature.mfcc(row_data[i])
-    mfccs = np.append(mfccs, np.array([my_mfcc]), axis = 0)
-    print(my_mfcc.shape)
+
+
+
+# In[ ]:
+
+
+for i in range(23):
+    k_mfcc_2=librosa.feature.mfcc(row_data_kimura[i])
+    k_mfcc=k_mfcc_2[None,:,:]
+    #print(my_mfcc.shape)
+    mfccs_k = np.concatenate([mfccs_k, k_mfcc], axis=0)
+    print(mfccs_k.shape)
     
-# #20個のmfccを入れる。二つ下のセルでなぜ２０個か説明します
+# #24個のmfccを入れる。
 # mfcc = librosa.feature.mfcc(data[0])
 # print(type(mfcc))
 # mfcc.shape
@@ -89,16 +106,13 @@ for i in range(24):
 # In[ ]:
 
 
-type(data[0])
-#dataの一つ目の要素の型を確認（ndarray出ないといけないから)
+
 
 
 # In[ ]:
 
 
-for i in range(30):
-    print(i,type(data[i]))
-    #結局、全部の型を確認。２３個は大丈夫なので、きりよく20こにしました
+
 
 
 # In[ ]:
