@@ -8,7 +8,7 @@ import librosa
 #librosaライブラリのインポート（初めての人はインストール必要かもです）
 
 
-# In[3]:
+# In[2]:
 
 
 import numpy as np 
@@ -18,64 +18,82 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 from sklearn.svm import SVC
 
 
-# In[5]:
+# In[3]:
 
 
 svc=SVC(kernel='linear')#モデル作成（本当はこっからkernel.gamma,cの調整が必要）
 
 
-# In[7]:
+# In[4]:
 
 
-data=np.array([None]*30)
-f=np.array([None]*30)
+row_data=np.empty((0, 22050), float)
+f=np.zeros(30)
 #空のarrayを作成
-print(type(data))
+print(type(row_data))
 
 
-# In[9]:
+# In[5]:
 
 
-for i in range(7):
-    data[i],f[i]=librosa.load("data\kimura_out_a00{}.wav".format(i+2),sr=44100)
+for i in range(8):
+    my_data, my_f=librosa.load("data\kimura_out_a00{}.wav".format(i+2))
+    row_data = np.append(row_data, np.array([my_data]), axis = 0)
     #まず木村さんの2-9番目の音声データ読み込み
-    #データのパスを自分のパソコンで合わせてしまっているので、直してください。ごめんなさい
-print(type(data[1]))
-data[1].shape
+# print(row_data[1])
+# print(row_data[1].shape)
+print(type(row_data))
+print(row_data.shape)
+row_data
+# print(row_data)
+#np.array(row_data)
 
 
-# In[16]:
+# In[6]:
 
 
-for i in range(8,23):
-    data[i],f[i]=librosa.load(r"C:\Users\ttaki\workshop-repository-e\Voice\data\kimura_out_a0{}.wav".format(i+2),sr=44100)
+#実行は1回だけ！
+for i in range(8,24):
+    my_data,my_f=librosa.load("data\kimura_out_a0{}.wav".format(i+2))
+    row_data = np.append(row_data, np.array([my_data]), axis = 0)
     #10-25番目の音声データ読み込み
+print(type(f))
+f
+print(row_data.shape)
 
 
-# In[17]:
+# In[11]:
 
 
-mfcc=[None]*30
-#mfccを入れるための空のリストを作成
+mfccs=np.empty((20, 44, 24), float)
+#mfccを入れるための空のarrayを作成
+print(type(mfccs))
+print(mfccs.shape)
+mfccs
 
 
-# In[22]:
+# In[12]:
 
 
-for i in range(20):
-    mfcc[i]=librosa.feature.mfcc(data[i])
+for i in range(24):
+    my_mfcc=librosa.feature.mfcc(row_data[i])
+    mfccs = np.append(mfccs, np.array([my_mfcc]), axis = 0)
+    print(my_mfcc.shape)
     
-    #20個のmfccを入れる。二つ下のセルでなぜ２０個か説明します
+# #20個のmfccを入れる。二つ下のセルでなぜ２０個か説明します
+# mfcc = librosa.feature.mfcc(data[0])
+# print(type(mfcc))
+# mfcc.shape
 
 
-# In[19]:
+# In[ ]:
 
 
 type(data[0])
 #dataの一つ目の要素の型を確認（ndarray出ないといけないから)
 
 
-# In[24]:
+# In[ ]:
 
 
 for i in range(30):
@@ -83,41 +101,41 @@ for i in range(30):
     #結局、全部の型を確認。２３個は大丈夫なので、きりよく20こにしました
 
 
-# In[26]:
+# In[ ]:
 
 
 data1=[None]*30
 f1=[None]*30
 
 
-# In[32]:
+# In[ ]:
 
 
 for i in range(8):
     data1[i],f1[i]=librosa.load(r"C:\Users\ttaki\workshop-repository-e\Voice\data\tsujita_out_a00{}.wav".format(i+2),sr=44100)
 
 
-# In[29]:
+# In[ ]:
 
 
 for i in range(8,23):
     data1[i],f1[i]=librosa.load(r"C:\Users\ttaki\workshop-repository-e\Voice\data\tsujita_out_a0{}.wav".format(i+2),sr=44100)
 
 
-# In[40]:
+# In[ ]:
 
 
 mfcc2=[None]*30
 
 
-# In[33]:
+# In[ ]:
 
 
 for i in range(30):
     print(i,type(data1[i]))
 
 
-# In[41]:
+# In[ ]:
 
 
 for i in range(20):
@@ -125,7 +143,7 @@ for i in range(20):
     #ここまで木村さんの音声の時と同様に、辻田さんの方でもやってます
 
 
-# In[42]:
+# In[ ]:
 
 
 for i in range(20):
@@ -133,19 +151,19 @@ for i in range(20):
     #念のため、両方のmfccの型を確認したところ違っている！？
 
 
-# In[36]:
+# In[ ]:
 
 
 mfcc2[0].shape
 
 
-# In[37]:
+# In[ ]:
 
 
 mfcc[0]
 
 
-# In[38]:
+# In[ ]:
 
 
 mfcc2[0]
