@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[8]:
+# In[1]:
 
 
 import librosa
 #librosaライブラリのインポート（初めての人はインストール必要かもです）
 
 
-# In[9]:
+# In[2]:
 
 
 import numpy as np 
@@ -18,13 +18,13 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 from sklearn.svm import SVC
 
 
-# In[10]:
+# In[3]:
 
 
 svc=SVC(kernel='rbf', gamma=0.1, C=10)#モデル作成（本当はこっからkernel.gamma,cの調整が必要）
 
 
-# In[11]:
+# In[4]:
 
 
 row_data_kimura=np.empty((0, 22050), float)
@@ -33,18 +33,20 @@ row_data_tsujita=np.empty((0, 22050), float)
 print(type(row_data_kimura))
 
 
-# In[30]:
+# In[5]:
 
 
 for i in range(8):
-    k_data, f=librosa.load("data\kimura_out_a00{}.wav".format(i+2))
-    t_data, f=librosa.load("data\tsujita_out_a00{}.wav".format(i+2))
+    k_data, f=librosa.load(r"data\kimura_out_a00{}.wav".format(i+2))
+    t_data, f=librosa.load(r"data\tsujita_out_a00{}.wav".format(i+2))
     row_data_kimura = np.append(row_data_kimura, np.array([k_data]), axis = 0)
+    row_data_tsujita = np.append(row_data_tsujita, np.array([t_data]), axis = 0)
     #2-9番目の音声データ読み込み
 # print(row_data[1])
 # print(row_data[1].shape)
 print(type(row_data_kimura))
 print(row_data_kimura.shape)
+print(row_data_tsujita.shape)
 row_data_kimura
 # print(row_data)
 #np.array(row_data)
@@ -56,27 +58,33 @@ row_data_kimura
 
 
 
-# In[13]:
+# In[6]:
 
 
 #実行は1回だけ！
 for i in range(8,24):
-    k_data,f=librosa.load("data\kimura_out_a0{}.wav".format(i+2))
+    k_data,f=librosa.load(r"data\kimura_out_a0{}.wav".format(i+2))
+    t_data,f=librosa.load(r"data\tsujita_out_a0{}.wav".format(i+2))
     row_data_kimura = np.append(row_data_kimura, np.array([k_data]), axis = 0)
+    row_data_tsujita = np.append(row_data_tsujita, np.array([t_data]), axis = 0)
     #10-25番目の音声データ読み込み
 print(type(f))
 print(row_data_kimura.shape)
 print(f)
 
 
-# In[14]:
+# In[13]:
 
 
 mfccs_k_2=librosa.feature.mfcc(row_data_kimura[0])
+mfccs_t_2=librosa.feature.mfcc(row_data_tsujita[0])
 print(mfccs_k_2.shape)
+print(mfccs_t_2.shape)
 mfccs_k = mfccs_k_2[None,:,:]
+mfccs_t = mfccs_t_2[None,:,:]
 #mfccを入れるための空のarrayを作成(3次元に変換)
 print(type(mfccs_k))
+print(type(mfccs_t))
 print(mfccs_k.shape)
 mfccs_k
 
@@ -87,111 +95,44 @@ mfccs_k
 
 
 
-# In[15]:
+# In[14]:
 
 
 for i in range(23):
     k_mfcc_2=librosa.feature.mfcc(row_data_kimura[i])
+    t_mfcc_2=librosa.feature.mfcc(row_data_tsujita[i])
     k_mfcc=k_mfcc_2[None,:,:]
+    t_mfcc=t_mfcc_2[None,:,:]
     #print(my_mfcc.shape)
     mfccs_k = np.concatenate([mfccs_k, k_mfcc], axis=0)
+    mfccs_t = np.concatenate([mfccs_t, t_mfcc], axis=0)
     print(mfccs_k.shape)
-    
+    print(mfccs_t.shape)
 # #23個のmfccを入れる。
 # mfcc = librosa.feature.mfcc(data[0])
 # print(type(mfcc))
 # mfcc.shape
 
 
-# In[16]:
+# In[29]:
 
 
-y = np.ones(23)
+y_train = np.ones(40)
+y_test = np.ones(8)
 
 
-# In[17]:
+# In[31]:
 
 
-y
+for i in range(20):
+    y_train[i]=0
+# 0:kimura, 1:tsujita
+
+for i in range(4):
+    y_test[i]=0
 
 
 # In[18]:
-
-
-data1=[None]*30
-f1=[None]*30
-
-
-# In[19]:
-
-
-for i in range(8):
-    data1[i],f1[i]=librosa.load(r"C:\Users\ttaki\workshop-repository-e\Voice\data\tsujita_out_a00{}.wav".format(i+2),sr=44100)
-
-
-# In[ ]:
-
-
-for i in range(8,23):
-    data1[i],f1[i]=librosa.load(r"C:\Users\ttaki\workshop-repository-e\Voice\data\tsujita_out_a0{}.wav".format(i+2),sr=44100)
-
-
-# In[ ]:
-
-
-mfcc2=[None]*30
-
-
-# In[ ]:
-
-
-for i in range(30):
-    print(i,type(data1[i]))
-
-
-# In[20]:
-
-
-for i in range(20):
-    mfcc2[i]=librosa.feature.mfcc(data1[i])
-    #ここまで木村さんの音声の時と同様に、辻田さんの方でもやってます
-
-
-# In[ ]:
-
-
-for i in range(20):
-    print('{},{}'.format(mfcc[i].shape,mfcc2[i].shape))
-    #念のため、両方のmfccの型を確認したところ違っている！？
-
-
-# In[ ]:
-
-
-mfcc2[0].shape
-
-
-# In[ ]:
-
-
-mfcc[0]
-
-
-# In[ ]:
-
-
-mfcc2[0]#確認したけどやっぱり違う
-#その後、辻田さんの指摘で修正されました
-#ここから先の見通しは、二つのmfcc群を20個ずつxにいれ、それに対応する正解ｙ（木村さん：０、辻田さん：１）みたいな感じで作ってSVCで学習する感じだと思います
-
-
-# In[16]:
-
-
-svc.fit(mfccs_k, y)
-
-
-# In[21]:
 
 
 import tensorflow as tf
@@ -205,19 +146,99 @@ from keras.optimizers import SGD
 from keras.utils import np_utils
 
 
-# In[22]:
+# In[26]:
+
+
+mfccs_k_train = mfccs_k[:20,:,:]
+mfccs_t_train = mfccs_t[:20,:,:]
+mfccs_k_test = mfccs_k[20:,:,:]
+mfccs_t_test = mfccs_t[20:,:,:]
+print(mfccs_k_train.shape)
+print(mfccs_k_test.shape)
+
+
+# In[33]:
+
+
+mfccs_train = np.concatenate([mfccs_k_train, mfccs_t_train], axis=0)
+mfccs_test = np.concatenate([mfccs_k_test, mfccs_t_test], axis=0)
+
+
+# In[34]:
+
+
+print(mfccs_train.shape)
+
+
+# In[35]:
+
+
+# 以上でデータの完成！
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+svc.fit(mfccs_k, y)
+
+
+# In[ ]:
+
+
+import tensorflow as tf
+import keras
+from keras.models import Sequential
+
+from keras.layers import Dense, Activation, Flatten
+
+from keras.optimizers import SGD
+
+from keras.utils import np_utils
+
+
+# In[ ]:
 
 
 Y_train = np_utils.to_categorical(y, num_classes=2).astype('i')
 
 
-# In[23]:
+# In[ ]:
 
 
 batch_size=100
 
 
-# In[24]:
+# In[ ]:
 
 
 n_epoch=20
